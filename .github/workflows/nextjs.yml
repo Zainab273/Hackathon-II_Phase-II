@@ -1,54 +1,48 @@
-name: Deploy Next.js Phase-II
+name: Next.js CI
 
 on:
   push:
-    branches: ["main"]
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v2
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
         with:
-          node-version: "18"
+          node-version: '14'
 
-      # Error yahan aa raha tha, humne detect step hata diya
-      # Aur seedha folder bata kar install kiya
+      - name: Check for Dependencies
+        run: |
+          if [ -f ./frontend/package.json ] && [ -f ./frontend/yarn.lock ]; then
+            echo 'Found package.json and yarn.lock';
+          else
+            echo 'package.json or yarn.lock not found';
+            exit 1;
+          fi
+        working-directory: ./frontend
+
       - name: Install Dependencies
-        working-directory: ./phase-II/frontend
-        run: npm ci
+        run: |
+          yarn install
+        working-directory: ./frontend
 
       - name: Build
-        working-directory: ./phase-II/frontend
-        run: npm run build
+        run: |
+          yarn build
+        working-directory: ./frontend
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Ye path sabse important hai
-          path: ./phase-II/frontend/out
+      - name: Run Tests
+        run: |
+          yarn test
+        working-directory: ./frontend
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Lint
+        run: |
+          yarn lint
+        working-directory: ./frontend
