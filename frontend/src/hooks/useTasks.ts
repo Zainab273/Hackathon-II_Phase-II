@@ -2,8 +2,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Task, TaskCreate, TaskUpdate } from '@/lib/types';
-import { apiClient, ApiError } from '@/lib/api-client';
+import { Task, TaskCreate, TaskUpdate } from '../lib/types';
+import { apiClient, ApiError } from '../lib/api-client';
 import { useAuth } from './useAuth'; // Assuming useAuth provides isAuthenticated and user
 
 interface UseTasksState {

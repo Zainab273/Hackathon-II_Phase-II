@@ -3,9 +3,9 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { auth } from '@/lib/auth';
-import { apiClient, ApiError } from '@/lib/api-client'; // Keep this one
-import { User, AuthSigninRequest, AuthSignupRequest, AuthResponse } from '@/lib/types';
+import { auth } from '../lib/auth';
+import { apiClient, ApiError } from '../lib/api-client'; // Keep this one
+import { User, AuthSigninRequest, AuthSignupRequest, AuthResponse } from '../lib/types';
 
 interface AuthContextType {
   isAuthenticated: boolean;
