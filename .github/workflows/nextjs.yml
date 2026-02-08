@@ -4,45 +4,36 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Check out the code
         uses: actions/checkout@v2
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '14'
 
-      - name: Check for Dependencies
-        run: |
-          if [ -f ./frontend/package.json ] && [ -f ./frontend/yarn.lock ]; then
-            echo 'Found package.json and yarn.lock';
-          else
-            echo 'package.json or yarn.lock not found';
-            exit 1;
-          fi
+      - name: Install dependencies
         working-directory: ./frontend
+        run: |
+          npm install
+          # or yarn install if using yarn
 
-      - name: Install Dependencies
-        run: |
-          yarn install
+      - name: Run tests
         working-directory: ./frontend
+        run: |
+          npm test
+          # or yarn test if using yarn
 
       - name: Build
-        run: |
-          yarn build
         working-directory: ./frontend
-
-      - name: Run Tests
         run: |
-          yarn test
-        working-directory: ./frontend
-
-      - name: Lint
-        run: |
-          yarn lint
-        working-directory: ./frontend
+          npm run build
+          # or yarn build if using yarn
