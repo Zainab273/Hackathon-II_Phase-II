@@ -42,9 +42,11 @@ async def health_check():
 # Register routers
 from src.api.tasks import router as tasks_router
 from src.api.auth import router as auth_router
+from src.api.chat import router as chat_router
 
 app.include_router(tasks_router)
 app.include_router(auth_router)
+app.include_router(chat_router, prefix="/api", tags=["chat"])
 
 
 if __name__ == "__main__":
