@@ -1,6 +1,7 @@
 """
 Chat API endpoint for natural language task management
 @see specs/005-backend-mcp-server/spec.md
+@see specs/006-agent-nlp-logic/spec.md
 """
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -12,6 +13,7 @@ from typing import Optional, Dict, Any
 from ..db.session import get_db
 from ..models.task import Task
 from ..models.user import User
+from ..services.nlp_router import nlp_router
 
 router = APIRouter()
 
@@ -46,21 +48,25 @@ async def chat_endpoint(
     """
     Process natural language chat messages and execute task operations
     
-    User Story 1: Receive Chat Message and Process Task Command
+    User Story 1 (005): Receive Chat Message and Process Task Command
+    User Story 1 (006): Interpret Natural Language and Route to Correct Tool
     """
     try:
-        message = request.message.lower().strip()
+        message = request.message.strip()
         
-        # Simple NLP routing (will be enhanced by 006-agent-nlp-logic)
-        if "add" in message or "create" in message:
+        # Use NLP router for intent detection (006-agent-nlp-logic)
+        intent = nlp_router.detect_intent(message)
+        
+        # Route to appropriate handler
+        if intent == 'add':
             return await handle_add_task(user_id, message, db)
-        elif "list" in message or "show" in message or "all" in message:
+        elif intent == 'list':
             return await handle_list_tasks(user_id, message, db)
-        elif "complete" in message or "done" in message or "finish" in message:
+        elif intent == 'complete':
             return await handle_complete_task(user_id, message, db)
-        elif "update" in message or "change" in message or "modify" in message:
+        elif intent == 'update':
             return await handle_update_task(user_id, message, db)
-        elif "delete" in message or "remove" in message:
+        elif intent == 'delete':
             return await handle_delete_task(user_id, message, db)
         else:
             return ChatResponse(
@@ -73,15 +79,24 @@ async def chat_endpoint(
 
 
 async def handle_add_task(user_id: str, message: str, db: Session) -> ChatResponse:
-    """User Story 2: Add New Tasks via MCP Tool"""
-    # Extract task name from message
-    task_name = extract_task_name(message)
+    """
+    User Story 2 (005): Add New Tasks via MCP Tool
+    User Story 2 (006): Create Tasks from Natural Language Descriptions
+    """
+    # Extract task name using NLP router
+    task_name = nlp_router.extract_task_name(message, 'add')
     
     if not task_name:
+        response_text = nlp_router.generate_response('add', False, {
+            'error_type': 'missing_task_name'
+        })
         return ChatResponse(
-            response="I couldn't understand the task name. Please try: 'Add task to [task description]'",
+            response=response_text,
             timestamp=datetime.utcnow().isoformat()
         )
+    
+    # Extract due date if mentioned
+    due_date_str = nlp_router.extract_due_date(message)
     
     # Create task
     task = Task(
@@ -93,8 +108,12 @@ async def handle_add_task(user_id: str, message: str, db: Session) -> ChatRespon
     db.commit()
     db.refresh(task)
     
+    response_text = nlp_router.generate_response('add', True, {
+        'task_name': task.title
+    })
+    
     return ChatResponse(
-        response=f"Got it! I've added '{task_name}' to your tasks.",
+        response=response_text,
         timestamp=datetime.utcnow().isoformat(),
         metadata=ResponseMetadata(
             operation="add",
@@ -106,13 +125,30 @@ async def handle_add_task(user_id: str, message: str, db: Session) -> ChatRespon
 
 
 async def handle_list_tasks(user_id: str, message: str, db: Session) -> ChatResponse:
-    """User Story 3: List All Tasks via MCP Tool"""
-    # Get all tasks for user
-    tasks = db.query(Task).filter(Task.user_id == int(user_id) if user_id.isdigit() else 1).all()
+    """
+    User Story 3 (005): List All Tasks via MCP Tool
+    User Story 3 (006): List Tasks with Natural Language Filters
+    """
+    # Extract status filter if mentioned
+    status_filter = nlp_router.extract_status_filter(message)
+    
+    # Get tasks for user
+    query = db.query(Task).filter(Task.user_id == int(user_id) if user_id.isdigit() else 1)
+    
+    if status_filter == 'completed':
+        query = query.filter(Task.completed == True)
+    elif status_filter == 'active':
+        query = query.filter(Task.completed == False)
+    
+    tasks = query.all()
+    
+    response_text = nlp_router.generate_response('list', True, {
+        'count': len(tasks)
+    })
     
     if not tasks:
         return ChatResponse(
-            response="You don't have any tasks yet. Would you like to create one?",
+            response=response_text,
             timestamp=datetime.utcnow().isoformat(),
             metadata=ResponseMetadata(
                 operation="list",
@@ -132,7 +168,7 @@ async def handle_list_tasks(user_id: str, message: str, db: Session) -> ChatResp
     ]
     
     return ChatResponse(
-        response="Here are your current tasks:",
+        response=response_text,
         timestamp=datetime.utcnow().isoformat(),
         metadata=ResponseMetadata(
             operation="list",
@@ -143,12 +179,19 @@ async def handle_list_tasks(user_id: str, message: str, db: Session) -> ChatResp
 
 
 async def handle_complete_task(user_id: str, message: str, db: Session) -> ChatResponse:
-    """User Story 4: Mark Tasks Complete via MCP Tool"""
-    task_id = extract_task_id(message)
+    """
+    User Story 4 (005): Mark Tasks Complete via MCP Tool
+    User Story 4 (006): Mark Tasks Complete from Various Phrasings
+    """
+    # Extract task ID using NLP router
+    task_id = nlp_router.extract_task_id(message)
     
     if not task_id:
+        response_text = nlp_router.generate_response('complete', False, {
+            'error_type': 'missing_task_id'
+        })
         return ChatResponse(
-            response="Please specify which task to complete. Try: 'Complete task 1'",
+            response=response_text,
             timestamp=datetime.utcnow().isoformat()
         )
     
@@ -158,14 +201,22 @@ async def handle_complete_task(user_id: str, message: str, db: Session) -> ChatR
     ).first()
     
     if not task:
+        response_text = nlp_router.generate_response('complete', False, {
+            'error_type': 'not_found',
+            'task_id': task_id
+        })
         return ChatResponse(
-            response=f"I couldn't find task {task_id}. Would you like to see your task list?",
+            response=response_text,
             timestamp=datetime.utcnow().isoformat()
         )
     
     if task.completed:
+        response_text = nlp_router.generate_response('complete', False, {
+            'error_type': 'already_complete',
+            'task_name': task.title
+        })
         return ChatResponse(
-            response=f"Task '{task.title}' is already marked as complete.",
+            response=response_text,
             timestamp=datetime.utcnow().isoformat(),
             metadata=ResponseMetadata(
                 operation="complete",
@@ -178,8 +229,12 @@ async def handle_complete_task(user_id: str, message: str, db: Session) -> ChatR
     task.completed = True
     db.commit()
     
+    response_text = nlp_router.generate_response('complete', True, {
+        'task_name': task.title
+    })
+    
     return ChatResponse(
-        response=f"Great! I've marked '{task.title}' as complete.",
+        response=response_text,
         timestamp=datetime.utcnow().isoformat(),
         metadata=ResponseMetadata(
             operation="complete",
@@ -264,30 +319,3 @@ async def handle_delete_task(user_id: str, message: str, db: Session) -> ChatRes
         )
     )
 
-
-def extract_task_name(message: str) -> Optional[str]:
-    """Extract task name from natural language message"""
-    # Simple extraction - will be enhanced by 006-agent-nlp-logic
-    keywords = ["add", "create", "task", "to", "update", "change", "modify"]
-    words = message.split()
-    
-    # Find where task description starts
-    start_idx = 0
-    for i, word in enumerate(words):
-        if word in keywords:
-            start_idx = i + 1
-    
-    if start_idx < len(words):
-        return " ".join(words[start_idx:]).strip()
-    
-    return None
-
-
-def extract_task_id(message: str) -> Optional[int]:
-    """Extract task ID from natural language message"""
-    import re
-    # Look for numbers in the message
-    numbers = re.findall(r'\d+', message)
-    if numbers:
-        return int(numbers[0])
-    return None
