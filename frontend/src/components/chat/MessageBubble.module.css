@@ -20,6 +20,11 @@
   border-bottom-left-radius: 0.25rem;
 }
 
+.taskMessage {
+  border-left: 3px solid #28a745;
+  background-color: #d4edda;
+}
+
 .messageText {
   margin: 0;
   font-size: 0.95rem;
@@ -38,9 +43,46 @@
   font-style: italic;
 }
 
+.taskConfirmation {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 0.5rem;
+}
+
+.taskIcon {
+  font-size: 1.5rem;
+  color: #28a745;
+}
+
+.taskDetails {
+  flex: 1;
+}
+
+.taskName {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #155724;
+}
+
+.taskId {
+  font-size: 0.8rem;
+  color: #155724;
+  opacity: 0.8;
+  margin-top: 0.25rem;
+}
+
 @media (max-width: 767px) {
   .messageBubble {
     max-width: 85%;
     padding: 0.6rem 0.85rem;
+  }
+  
+  .taskConfirmation {
+    padding: 0.5rem;
+    gap: 0.5rem;
   }
 }

@@ -90,11 +90,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Add TaskSummary interface to frontend/src/types/chat.ts (id, name, status, dueDate)
-- [ ] T022 [P] [US2] Add ResponseMetadata interface to frontend/src/types/chat.ts (operation, taskId, taskName, taskStatus)
-- [ ] T023 [US2] Update messageFormatter utility in frontend/src/utils/messageFormatter.ts to extract task creation confirmations
-- [ ] T024 [US2] Update MessageBubble component to render task confirmation metadata (highlighted task ID, name)
-- [ ] T025 [US2] Add visual distinction for task confirmation messages (icon, background color, or badge)
+- [x] T021 [P] [US2] Add TaskSummary interface to frontend/src/types/chat.ts (id, name, status, dueDate)
+- [x] T022 [P] [US2] Add ResponseMetadata interface to frontend/src/types/chat.ts (operation, taskId, taskName, taskStatus)
+- [x] T023 [US2] Update messageFormatter utility in frontend/src/utils/messageFormatter.ts to extract task creation confirmations
+- [x] T024 [US2] Update MessageBubble component to render task confirmation metadata (highlighted task ID, name)
+- [x] T025 [US2] Add visual distinction for task confirmation messages (icon, background color, or badge)
 
 **Checkpoint**: Task creation confirmations display prominently with task details
 
@@ -108,12 +108,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] Extend ResponseMetadata interface to include taskCount and tasks array
-- [ ] T027 [US3] Update messageFormatter utility to handle task list formatting
-- [ ] T028 [US3] Create TaskListDisplay sub-component in frontend/src/components/chat/TaskListDisplay.tsx (formatted task list within message bubble)
-- [ ] T029 [US3] Update MessageBubble component to conditionally render TaskListDisplay when metadata contains task list
-- [ ] T030 [US3] Add visual formatting for task list (numbered list, status badges, due date display)
-- [ ] T031 [US3] Handle empty task list case with appropriate message display
+- [x] T026 [P] [US3] Extend ResponseMetadata interface to include taskCount and tasks array
+- [x] T027 [US3] Update messageFormatter utility to handle task list formatting
+- [x] T028 [US3] Create TaskListDisplay sub-component in frontend/src/components/chat/TaskListDisplay.tsx (formatted task list within message bubble)
+- [x] T029 [US3] Update MessageBubble component to conditionally render TaskListDisplay when metadata contains task list
+- [x] T030 [US3] Add visual formatting for task list (numbered list, status badges, due date display)
+- [x] T031 [US3] Handle empty task list case with appropriate message display
 
 **Checkpoint**: Task lists display in readable format with visual separation between tasks
 
