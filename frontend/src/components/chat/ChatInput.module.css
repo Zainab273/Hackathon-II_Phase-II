@@ -1,0 +1,64 @@
+/* ChatInput - Input box and send button */
+.chatInputContainer {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-top: 1px solid #dee2e6;
+  background-color: #ffffff;
+  position: relative;
+}
+
+.chatInput {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 1.5rem;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.chatInput:focus {
+  border-color: #007bff;
+}
+
+.sendButton {
+  padding: 0.75rem 1.5rem;
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sendButton:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.sendButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.errorText {
+  position: absolute;
+  bottom: 100%;
+  left: 1rem;
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+@media (max-width: 767px) {
+  .chatInputContainer {
+    padding: 0.75rem;
+  }
+  
+  .sendButton {
+    padding: 0.75rem 1.25rem;
+  }
+}

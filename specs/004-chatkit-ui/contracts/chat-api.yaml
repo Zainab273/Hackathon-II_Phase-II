@@ -1,0 +1,309 @@
+openapi: 3.0.3
+info:
+  title: Chat API
+  description: |
+    API for conversational task management interface. Enables users to send natural language
+    messages and receive AI-generated responses for task operations (add, list, complete, update, delete).
+  version: 1.0.0
+  contact:
+    name: Hackathon Team
+    email: team@hackathon.example.com
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+  - url: https://api.example.com
+    description: Production server
+
+paths:
+  /api/{user_id}/chat:
+    post:
+      summary: Send chat message
+      description: |
+        Sends a user message to the AI assistant and receives a response. The AI processes
+        natural language commands for task management operations and returns appropriate responses.
+
+        The endpoint is stateless - conversation context is reconstructed from database on each request.
+      operationId: sendChatMessage
+      tags:
+        - Chat
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: Unique identifier for the user
+          schema:
+            type: string
+            example: "user-123"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              addTask:
+                summary: Add task request
+                value:
+                  message: "Add task to buy groceries"
+                  timestamp: "2026-02-09T10:30:00.000Z"
+              listTasks:
+                summary: List tasks request
+                value:
+                  message: "Show me all my tasks"
+                  timestamp: "2026-02-09T10:31:00.000Z"
+              completeTask:
+                summary: Complete task request
+                value:
+                  message: "Mark task 3 as done"
+                  timestamp: "2026-02-09T10:32:00.000Z"
+      responses:
+        '200':
+          description: Successful response with AI-generated message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              examples:
+                taskAdded:
+                  summary: Task created successfully
+                  value:
+                    response: "Got it! I've added 'Buy groceries' to your tasks."
+                    timestamp: "2026-02-09T10:30:01.500Z"
+                    metadata:
+                      operation: "add"
+                      taskId: "task-456"
+                      taskName: "Buy groceries"
+                taskList:
+                  summary: Task list returned
+                  value:
+                    response: "Here are your current tasks:"
+                    timestamp: "2026-02-09T10:31:01.200Z"
+                    metadata:
+                      operation: "list"
+                      taskCount: 3
+                      tasks:
+                        - id: "task-123"
+                          name: "Buy groceries"
+                          status: "active"
+                        - id: "task-124"
+                          name: "Review report"
+                          status: "active"
+                          dueDate: "2026-02-10"
+                        - id: "task-125"
+                          name: "Call John"
+                          status: "completed"
+                taskCompleted:
+                  summary: Task marked complete
+                  value:
+                    response: "Done! I've marked 'Review report' as complete."
+                    timestamp: "2026-02-09T10:32:01.800Z"
+                    metadata:
+                      operation: "complete"
+                      taskId: "task-124"
+                      taskName: "Review report"
+                      taskStatus: "completed"
+        '400':
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                emptyMessage:
+                  summary: Empty message error
+                  value:
+                    error: "Message cannot be empty"
+                    code: "VALIDATION_ERROR"
+                    details:
+                      field: "message"
+                      expected: "non-empty string"
+                      received: ""
+                      statusCode: 400
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                userNotFound:
+                  summary: User not found
+                  value:
+                    error: "User not found. Please check your credentials."
+                    code: "USER_NOT_FOUND"
+                    details:
+                      statusCode: 404
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                serverError:
+                  summary: Generic server error
+                  value:
+                    error: "Something went wrong. Please try again later."
+                    code: "SERVER_ERROR"
+                    details:
+                      statusCode: 500
+        '503':
+          description: Service unavailable - database or external service error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                databaseError:
+                  summary: Database connection error
+                  value:
+                    error: "Service temporarily unavailable. Please try again in a moment."
+                    code: "SERVICE_UNAVAILABLE"
+                    details:
+                      statusCode: 503
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+        - timestamp
+      properties:
+        message:
+          type: string
+          description: User's message text
+          minLength: 1
+          maxLength: 5000
+          example: "Add task to buy groceries"
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when message was created
+          example: "2026-02-09T10:30:00.000Z"
+
+    ChatResponse:
+      type: object
+      required:
+        - response
+        - timestamp
+      properties:
+        response:
+          type: string
+          description: AI-generated response text
+          example: "Got it! I've added 'Buy groceries' to your tasks."
+        timestamp:
+          type: string
+          format: date-time
+          description: Server-side timestamp for response
+          example: "2026-02-09T10:30:01.500Z"
+        metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+
+    ResponseMetadata:
+      type: object
+      description: Optional metadata about task operations performed
+      properties:
+        operation:
+          type: string
+          enum: [add, list, complete, update, delete]
+          description: Type of task operation performed
+          example: "add"
+        taskId:
+          type: string
+          description: ID of the task that was created/modified
+          example: "task-456"
+        taskName:
+          type: string
+          description: Name of the task
+          example: "Buy groceries"
+        taskStatus:
+          type: string
+          enum: [active, completed]
+          description: Status of the task after operation
+          example: "active"
+        taskCount:
+          type: integer
+          description: Number of tasks (for list operations)
+          example: 3
+        tasks:
+          type: array
+          description: Array of task summaries (for list operations)
+          items:
+            $ref: '#/components/schemas/TaskSummary'
+
+    TaskSummary:
+      type: object
+      required:
+        - id
+        - name
+        - status
+      properties:
+        id:
+          type: string
+          description: Unique task identifier
+          example: "task-123"
+        name:
+          type: string
+          description: Task name
+          example: "Buy groceries"
+        status:
+          type: string
+          enum: [active, completed]
+          description: Current task status
+          example: "active"
+        dueDate:
+          type: string
+          format: date
+          description: Optional due date (ISO 8601 date)
+          example: "2026-02-10"
+
+    ApiError:
+      type: object
+      required:
+        - error
+        - code
+      properties:
+        error:
+          type: string
+          description: User-friendly error message
+          example: "Message cannot be empty"
+        code:
+          type: string
+          description: Machine-readable error code
+          enum:
+            - VALIDATION_ERROR
+            - USER_NOT_FOUND
+            - TASK_NOT_FOUND
+            - SERVER_ERROR
+            - SERVICE_UNAVAILABLE
+            - NETWORK_ERROR
+          example: "VALIDATION_ERROR"
+        details:
+          $ref: '#/components/schemas/ErrorDetails'
+
+    ErrorDetails:
+      type: object
+      description: Additional error context
+      properties:
+        field:
+          type: string
+          description: Field that caused the error (for validation errors)
+          example: "message"
+        expected:
+          type: string
+          description: Expected value format
+          example: "non-empty string"
+        received:
+          type: string
+          description: Actual received value
+          example: ""
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 400
+
+tags:
+  - name: Chat
+    description: Chat interface endpoints for conversational task management
