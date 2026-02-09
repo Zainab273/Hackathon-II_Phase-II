@@ -39,8 +39,9 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   const renderTaskConfirmation = () => {
     if (!message.metadata) return null;
 
-    const { operation, taskId, taskName } = message.metadata;
+    const { operation, taskId, taskName, taskStatus } = message.metadata;
 
+    // Task creation
     if (operation === 'add' && taskId && taskName) {
       return (
         <div className={styles.taskConfirmation}>
@@ -48,6 +49,47 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           <div className={styles.taskDetails}>
             <div className={styles.taskName}>{taskName}</div>
             <div className={styles.taskId}>ID: {taskId}</div>
+          </div>
+        </div>
+      );
+    }
+
+    // Task completion
+    if (operation === 'complete' && taskId) {
+      return (
+        <div className={`${styles.taskConfirmation} ${styles.completionConfirmation}`}>
+          <span className={styles.taskIcon}>✓</span>
+          <div className={styles.taskDetails}>
+            <div className={styles.taskName} style={{ textDecoration: 'line-through' }}>
+              {taskName || `Task ${taskId}`}
+            </div>
+            <div className={styles.taskStatus}>Status: Completed</div>
+          </div>
+        </div>
+      );
+    }
+
+    // Task update
+    if (operation === 'update' && taskId) {
+      return (
+        <div className={`${styles.taskConfirmation} ${styles.updateConfirmation}`}>
+          <span className={styles.taskIcon}>✎</span>
+          <div className={styles.taskDetails}>
+            <div className={styles.taskName}>{taskName || `Task ${taskId}`}</div>
+            <div className={styles.taskStatus}>Updated</div>
+          </div>
+        </div>
+      );
+    }
+
+    // Task deletion
+    if (operation === 'delete' && taskId) {
+      return (
+        <div className={`${styles.taskConfirmation} ${styles.deleteConfirmation}`}>
+          <span className={styles.taskIcon}>✗</span>
+          <div className={styles.taskDetails}>
+            <div className={styles.taskName}>{taskName || `Task ${taskId}`}</div>
+            <div className={styles.taskStatus}>Deleted</div>
           </div>
         </div>
       );

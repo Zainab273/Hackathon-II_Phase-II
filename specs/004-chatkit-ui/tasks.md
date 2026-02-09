@@ -127,10 +127,10 @@
 
 ### Implementation for User Story 4
 
-- [ ] T032 [P] [US4] Add taskStatus field to ResponseMetadata interface (active, completed)
-- [ ] T033 [US4] Update messageFormatter to handle completion confirmations
-- [ ] T034 [US4] Update MessageBubble to display completion status changes (strikethrough for completed tasks, status badge)
-- [ ] T035 [US4] Add visual feedback for task status transitions in message display
+- [x] T032 [P] [US4] Add taskStatus field to ResponseMetadata interface (active, completed)
+- [x] T033 [US4] Update messageFormatter to handle completion confirmations
+- [x] T034 [US4] Update MessageBubble to display completion status changes (strikethrough for completed tasks, status badge)
+- [x] T035 [US4] Add visual feedback for task status transitions in message display
 
 **Checkpoint**: Task completion confirmations show clearly with visual status indicators
 
@@ -144,9 +144,9 @@
 
 ### Implementation for User Story 5
 
-- [ ] T036 [US5] Update messageFormatter to handle task update confirmations
-- [ ] T037 [US5] Update MessageBubble to display updated task fields (highlight changed fields)
-- [ ] T038 [US5] Add comparison display for showing old vs new values when task is updated
+- [x] T036 [US5] Update messageFormatter to handle task update confirmations
+- [x] T037 [US5] Update MessageBubble to display updated task fields (highlight changed fields)
+- [x] T038 [US5] Add comparison display for showing old vs new values when task is updated
 
 **Checkpoint**: Task updates display clearly showing what changed
 
@@ -160,8 +160,8 @@
 
 ### Implementation for User Story 6
 
-- [ ] T039 [US6] Update messageFormatter to handle deletion confirmations
-- [ ] T040 [US6] Update MessageBubble to display deletion confirmation with task details
+- [x] T039 [US6] Update messageFormatter to handle deletion confirmations
+- [x] T040 [US6] Update MessageBubble to display deletion confirmation with task details
 
 **Checkpoint**: Task deletions are confirmed with clear messaging
 
@@ -175,9 +175,9 @@
 
 ### Implementation for User Story 7
 
-- [ ] T041 [P] [US7] Create ErrorNotification component in frontend/src/components/chat/ErrorNotification.tsx (toast notification style)
-- [ ] T042 [P] [US7] Add ApiError interface to frontend/src/types/chat.ts (error, code, details)
-- [ ] T043 [US7] Update errorFormatter utility with comprehensive error message mapping (NetworkError, TimeoutError, ServerError, ValidationError)
+- [x] T041 [P] [US7] Create ErrorNotification component in frontend/src/components/chat/ErrorNotification.tsx (toast notification style)
+- [x] T042 [P] [US7] Add ApiError interface to frontend/src/types/chat.ts (error, code, details)
+- [x] T043 [US7] Update errorFormatter utility with comprehensive error message mapping (NetworkError, TimeoutError, ServerError, ValidationError)
 - [ ] T044 [US7] Integrate ErrorNotification into ChatInterface component
 - [ ] T045 [US7] Add error handling to useChatApi hook for network failures
 - [ ] T046 [US7] Add error handling to useChatApi hook for timeout scenarios (30 second timeout)

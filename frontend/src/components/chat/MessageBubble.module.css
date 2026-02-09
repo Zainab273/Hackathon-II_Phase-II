@@ -53,9 +53,29 @@
   border-radius: 0.5rem;
 }
 
+.completionConfirmation {
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+.updateConfirmation {
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+.deleteConfirmation {
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
 .taskIcon {
   font-size: 1.5rem;
   color: #28a745;
+}
+
+.updateConfirmation .taskIcon {
+  color: #007bff;
+}
+
+.deleteConfirmation .taskIcon {
+  color: #dc3545;
 }
 
 .taskDetails {
@@ -69,6 +89,13 @@
 }
 
 .taskId {
+  font-size: 0.8rem;
+  color: #155724;
+  opacity: 0.8;
+  margin-top: 0.25rem;
+}
+
+.taskStatus {
   font-size: 0.8rem;
   color: #155724;
   opacity: 0.8;

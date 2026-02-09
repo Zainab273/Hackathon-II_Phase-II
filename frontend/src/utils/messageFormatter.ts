@@ -19,22 +19,25 @@ export function formatTaskConfirmation(response: ChatResponse): string {
 
   // Task completion confirmation
   if (metadata.operation === 'complete' && metadata.taskId) {
-    return `${response.response}\n\n✓ Task ${metadata.taskId} marked as complete`;
+    const taskName = metadata.taskName || `Task ${metadata.taskId}`;
+    return `${response.response}\n\n✓ ${taskName} marked as complete`;
+  }
+
+  // Task update confirmation
+  if (metadata.operation === 'update' && metadata.taskId) {
+    const taskName = metadata.taskName || `Task ${metadata.taskId}`;
+    return `${response.response}\n\n✓ ${taskName} updated successfully`;
+  }
+
+  // Task deletion confirmation
+  if (metadata.operation === 'delete' && metadata.taskId) {
+    const taskName = metadata.taskName || `Task ${metadata.taskId}`;
+    return `${response.response}\n\n✓ ${taskName} deleted`;
   }
 
   // Task list formatting
   if (metadata.operation === 'list' && metadata.tasks) {
     return formatTaskList(response.response, metadata.tasks);
-  }
-
-  // Task update confirmation
-  if (metadata.operation === 'update' && metadata.taskId) {
-    return `${response.response}\n\n✓ Task ${metadata.taskId} updated`;
-  }
-
-  // Task deletion confirmation
-  if (metadata.operation === 'delete' && metadata.taskId) {
-    return `${response.response}\n\n✓ Task ${metadata.taskId} deleted`;
   }
 
   return response.response;
